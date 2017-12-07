@@ -4,3 +4,8 @@
 	<opencv2/imgproc/imgproc.hpp>
 	<iostream>
 
+1512618437 source:c:\users\nguye\desktop\sudokusolve\hcmiuiot_opencv_sudokusolver\main.cpp
+	<opencv2/highgui/highgui.hpp>
+	<opencv2/imgproc/imgproc.hpp>
+	<iostream>
+
