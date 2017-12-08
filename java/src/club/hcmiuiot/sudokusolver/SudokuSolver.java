@@ -17,6 +17,9 @@ public class SudokuSolver {
 		SudokuAlgorithm solver = new SudokuAlgorithm(matrix);
 		solver.solve(0,0);
 		solver.printSolution();
+		
+		ImageProcessing imgProc = new ImageProcessing();
+		imgProc.process();
 		//System.out.println(solver.feasible(2, 0, 3));
 	}
 
