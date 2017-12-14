@@ -107,10 +107,9 @@ int main()
         stream.read(screen);
 //flip(src,src,1);
         Mat outerBox = Mat(screen.size(), CV_8UC1);
-        imshow("cam", screen);
         cvtColor(screen,screen, CV_BGR2GRAY);
         GaussianBlur(screen,screen,Size(11,11),0);
-        adaptiveThreshold(screen, outerBox, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY_INV, 9, 2);
+        adaptiveThreshold(screen, outerBox, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY_INV, 13, 2);
         Mat element = getStructuringElement(MORPH_RECT, Size(1,1));
         dilate(outerBox,outerBox,element);
         erode(outerBox,outerBox,element);
@@ -318,9 +317,25 @@ int main()
         dst[3] = Point2f(0, maxLength-1);
         Mat undistorted = Mat(Size(maxLength, maxLength), CV_8UC1);
         cv::warpPerspective(screen, undistorted, cv::getPerspectiveTransform(src, dst), Size(maxLength, maxLength));
-
+        Mat undistortedThreshed = undistorted.clone();
+        //adaptiveThreshold(undistorted, undistortedThreshed, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY_INV, 33, 2);
         imshow("threshold",outerBox);
-        imshow("undisolved", undistorted);
+        //imshow("undisolved", undistortedThreshed);
+
+        int col = 2, row = 2;
+        Rect rec = Rect(col * (undistortedThreshed.cols/9), row * (undistortedThreshed.rows/9), undistortedThreshed.cols/9, undistortedThreshed.rows/9);
+
+        Mat roi = undistortedThreshed(rec);
+
+        imshow("ROI", roi);
+        imshow("src", undistorted);
+        HOGS
+
+        //int dist = ceil((double)maxLength/9);
+        //Mat currentCell = Mat(dist, dist, CV_8UC1);
+        //imshow("ceils", currentCell);
+
+
         if (waitKey(30) >= 0)
             break;
     }

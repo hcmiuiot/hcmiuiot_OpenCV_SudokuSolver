@@ -19,7 +19,7 @@
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
-					<Add library="C:/Users/nguye/Desktop/OpenCV/bin/libopencv_world331.dll.a" />
+					<Add library="src/libopencv_world331.dll.a" />
 					<Add directory="C:/Users/nguye/Desktop/OpenCV/bin" />
 				</Linker>
 			</Target>
@@ -41,9 +41,7 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="include/digitrecognizer.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="src/digitrecognizer.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

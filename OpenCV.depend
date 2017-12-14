@@ -4,7 +4,7 @@
 	<opencv2/imgproc/imgproc.hpp>
 	<iostream>
 
-1512708400 source:c:\users\nguye\desktop\sudokusolve\hcmiuiot_opencv_sudokusolver\main.cpp
+1513257398 source:c:\users\nguye\desktop\sudokusolve\hcmiuiot_opencv_sudokusolver\main.cpp
 	<opencv2/highgui/highgui.hpp>
 	<opencv2/imgproc/imgproc.hpp>
 	<iostream>
@@ -29,5 +29,5 @@
 	"opencv2/core/core_c.h"
 	"opencv2/ml.hpp"
 
-1512639596 source:c:\users\nguye\desktop\sudokusolve\hcmiuiot_opencv_sudokusolver\src\digitrecognizer.cpp
+1513220035 source:c:\users\nguye\desktop\sudokusolve\hcmiuiot_opencv_sudokusolver\src\digitrecognizer.cpp
 

@@ -1,15 +1,16 @@
-/*#include "digitrecognizer.h"
+#include "digitrecognizer.h"
 
-digitrecognizer::digitrecognizer()
+DigitRecognizer::DigitRecognizer()
 {
-     knn = KNearest::create();
+    knn = new KNearest();
+
 }
 
-digitrecognizer::~digitrecognizer()
+DigitRecognizer::~DigitRecognizer()
 {
     delete knn;
 }
-int digitrecognizer::readFlippedInteger(FILE *fp)
+int DigitRecognizer::readFlippedInteger(FILE *fp)
 {
     int ret = 0;
 
@@ -26,7 +27,7 @@ int digitrecognizer::readFlippedInteger(FILE *fp)
 
 }
 
-bool digitrecognizer::train(char *trainPath, char *labelsPath)
+bool DigitRecognizer::train(char *trainPath, char *labelsPath)
 {
     FILE *fp = fopen(trainPath, "rb");
 
@@ -63,7 +64,7 @@ bool digitrecognizer::train(char *trainPath, char *labelsPath)
 
     BYTE *temp = new BYTE[size];
     BYTE tempClass=0;
-    for(int i=0;i<numImages;i++)
+    for(int i=0; i<numImages; i++)
     {
 
         fread((void*)temp, size, 1, fp);
@@ -72,7 +73,7 @@ bool digitrecognizer::train(char *trainPath, char *labelsPath)
 
         trainingClasses->data.fl[i] = tempClass;
 
-        for(int k=0;k<size;k++)
+        for(int k=0; k<size; k++)
             trainingVectors->data.fl[i*size+k] = temp[k]; ///sumofsquares;
 
     }
@@ -85,13 +86,13 @@ bool digitrecognizer::train(char *trainPath, char *labelsPath)
     return true;
 }
 
-/*int digitrecognizer::classify(cv::Mat img)
+int DigitRecognizer::classify(cv::Mat img)
 {
     Mat cloneImg = preprocessImage(img);
     return knn->find_nearest(Mat_<float>(cloneImg), 1);
 }
 
-Mat digitrecognizer::preprocessImage(Mat img)
+Mat DigitRecognizer::preprocessImage(Mat img)
 {
 
     int rowTop=-1, rowBottom=-1, colLeft=-1, colRight=-1;
@@ -102,7 +103,7 @@ Mat digitrecognizer::preprocessImage(Mat img)
     int thresholdLeft = 50;
     int thresholdRight = 50;
     int center = img.rows/2;
-    for(int i=center;i<img.rows;i++)
+    for(int i=center; i<img.rows; i++)
     {
         if(rowBottom==-1)
         {
@@ -139,7 +140,8 @@ Mat digitrecognizer::preprocessImage(Mat img)
                 colLeft = img.cols-i;
         }
     }
-      Mat newImg;
+
+    Mat newImg;
 
     newImg = newImg.zeros(img.rows, img.cols, CV_8UC1);
 
@@ -147,20 +149,21 @@ Mat digitrecognizer::preprocessImage(Mat img)
 
     int startAtY = (newImg.rows/2)-(rowBottom-rowTop)/2;
 
-    for(int y=startAtY;y<(newImg.rows/2)+(rowBottom-rowTop)/2;y++)
+    for(int y=startAtY; y<(newImg.rows/2)+(rowBottom-rowTop)/2; y++)
     {
         uchar *ptr = newImg.ptr<uchar>(y);
-        for(int x=startAtX;x<(newImg.cols/2)+(colRight-colLeft)/2;x++)
+        for(int x=startAtX; x<(newImg.cols/2)+(colRight-colLeft)/2; x++)
         {
             ptr[x] = img.at<uchar>(rowTop+(y-startAtY),colLeft+(x-startAtX));
         }
     }
-     Mat cloneImg = Mat(numRows, numCols, CV_8UC1);
+
+    Mat cloneImg = Mat(numRows, numCols, CV_8UC1);
 
     resize(newImg, cloneImg, Size(numCols, numRows));
 
     // Now fill along the borders
-    for(int i=0;i<cloneImg.rows;i++)
+    for(int i=0; i<cloneImg.rows; i++)
     {
         floodFill(cloneImg, cvPoint(0, i), cvScalar(0,0,0));
 
@@ -169,8 +172,8 @@ Mat digitrecognizer::preprocessImage(Mat img)
         floodFill(cloneImg, cvPoint(i, 0), cvScalar(0));
         floodFill(cloneImg, cvPoint(i, cloneImg.rows-1), cvScalar(0));
     }
+
     cloneImg = cloneImg.reshape(1, 1);
 
     return cloneImg;
 }
-*/
