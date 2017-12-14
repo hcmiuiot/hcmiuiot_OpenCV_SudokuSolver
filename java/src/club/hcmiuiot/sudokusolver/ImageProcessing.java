@@ -29,7 +29,7 @@ public class ImageProcessing {
 			
 			Imgproc.cvtColor(blurred, gray, Imgproc.COLOR_BGR2GRAY);
 			
-			Imgproc.adaptiveThreshold(gray, thresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, 7, 2);
+			Imgproc.adaptiveThreshold(gray, thresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, 11, 2);
 			//ImgShow.imshow("thresholded", thresholded);
 			
 			Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2));
@@ -66,25 +66,29 @@ public class ImageProcessing {
 			MatOfPoint2f lines = new MatOfPoint2f();
 			Imgproc.HoughLines(thresholded, lines, 1, Math.PI/180, 200);
 			System.out.println(lines.dump());
-			
+			drawLine(thresholded, lines);
 			//lines.
-			for (int i=0; i<lines.toArray().length; i++) {
-				//System.out.println("x:" + lines.toArray()[i].x + "\ty:" + lines.toArray()[i].y);
-				double rho = lines.toArray()[i].x;
-			    double theta = lines.toArray()[i].y;
-			    double a = Math.cos(theta), b = Math.sin(theta);
-			    double x0 = a*rho, y0 = b*rho;
-			    Point pt1 = new Point(Math.round(x0 + 1000*(-b)),
-			    		Math.round(y0 + 1000*(a)));
-			    Point pt2 = new Point(Math.round(x0 - 1000*(-b)),
-			    		Math.round(y0 - 1000*(a)));
-			    Imgproc.line(thresholded, pt1, pt2, new Scalar(200));
-			}
+			
 			
 			ImgShow.imshow("lines", thresholded);
 			
 			//Imgproc.warpPerspective(src, dst, Imgproc.getPerspectiveTransform(src, dst), dsize);
 			
+		}
+	}
+	
+	void drawLine(Mat img, MatOfPoint2f lines) {
+		for (int i=0; i<lines.toArray().length; i++) {
+			//System.out.println("x:" + lines.toArray()[i].x + "\ty:" + lines.toArray()[i].y);
+			double rho = lines.toArray()[i].x;
+		    double theta = lines.toArray()[i].y;
+		    double a = Math.cos(theta), b = Math.sin(theta);
+		    double x0 = a*rho, y0 = b*rho;
+		    Point pt1 = new Point(Math.round(x0 + 1000*(-b)),
+		    		Math.round(y0 + 1000*(a)));
+		    Point pt2 = new Point(Math.round(x0 - 1000*(-b)),
+		    		Math.round(y0 - 1000*(a)));
+		    Imgproc.line(img, pt1, pt2, new Scalar(200));
 		}
 	}
 }
