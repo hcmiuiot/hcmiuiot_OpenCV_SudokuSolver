@@ -23,7 +23,6 @@ public class ImageProcessing {
 		while (true) {
 			vc.read(frame);
 			//ImgShow.imshow("src", frame);
-			
 			Imgproc.GaussianBlur(frame, blurred, new Size(11,11), 0);
 			ImgShow.imshow("blurred", blurred);
 			
@@ -68,7 +67,6 @@ public class ImageProcessing {
 			System.out.println(lines.dump());
 			drawLine(thresholded, lines);
 			//lines.
-			
 			
 			ImgShow.imshow("lines", thresholded);
 			
