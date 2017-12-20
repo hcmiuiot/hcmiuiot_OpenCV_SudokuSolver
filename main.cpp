@@ -1,6 +1,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
+#include <string>
 using namespace cv;
 using namespace std;
 
@@ -109,7 +110,11 @@ int main()
         Mat outerBox = Mat(screen.size(), CV_8UC1);
         cvtColor(screen,screen, CV_BGR2GRAY);
         GaussianBlur(screen,screen,Size(11,11),0);
-        adaptiveThreshold(screen, outerBox, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY_INV, 13, 2);
+        adaptiveThreshold(screen, outerBox, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY_INV, 13, 4);
+
+        Mat kernel = (Mat_<uchar>(3,3) << 0,1,0,1,1,1,0,1,0);
+        erode(outerBox,outerBox,kernel);
+        dilate(outerBox, outerBox, kernel);
         Mat element = getStructuringElement(MORPH_RECT, Size(1,1));
         dilate(outerBox,outerBox,element);
         erode(outerBox,outerBox,element);
@@ -318,24 +323,30 @@ int main()
         Mat undistorted = Mat(Size(maxLength, maxLength), CV_8UC1);
         cv::warpPerspective(screen, undistorted, cv::getPerspectiveTransform(src, dst), Size(maxLength, maxLength));
         Mat undistortedThreshed = undistorted.clone();
-        //adaptiveThreshold(undistorted, undistortedThreshed, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY_INV, 33, 2);
+        adaptiveThreshold(undistorted, undistortedThreshed, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY_INV, 33, 2);
         imshow("threshold",outerBox);
         //imshow("undisolved", undistortedThreshed);
 
-        int col = 2, row = 2;
+        int col = 0, row = 8  ;
         Rect rec = Rect(col * (undistortedThreshed.cols/9), row * (undistortedThreshed.rows/9), undistortedThreshed.cols/9, undistortedThreshed.rows/9);
 
         Mat roi = undistortedThreshed(rec);
 
         imshow("ROI", roi);
         imshow("src", undistorted);
-        HOGS
-
-        //int dist = ceil((double)maxLength/9);
-        //Mat currentCell = Mat(dist, dist, CV_8UC1);
-        //imshow("ceils", currentCell);
-
-
+        int solvemap[9][9];
+        CvPoint cell;
+        for (int i=0; i<9; i++)
+            for (int j=0; j<9; j++)
+            {
+                cell = cvPoint(ptTopLeft.x+undistortedThreshed.cols/18+col * (undistortedThreshed.cols/9),ptTopLeft.y+undistortedThreshed.rows/9+row * (undistortedThreshed.rows/9));
+                               string result;
+                               ostringstream convert;
+                               convert << solvemap[i][j];
+                               result = convert.str();
+                               putText(screen,result,cell,FONT_ITALIC,1,Scalar(0,200,200),4);
+            }
+               imshow("screen",screen);
         if (waitKey(30) >= 0)
             break;
     }
