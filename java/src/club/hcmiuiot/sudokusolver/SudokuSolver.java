@@ -30,14 +30,7 @@ public class SudokuSolver {
 		
 		ImageProcessing imgProc = new ImageProcessing();
 		imgProc.process();
-		//System.out.println(solver.feasible(2, 0, 3));
 	}
-
 	
-	public static void foundSolution() {
-		// TODO Auto-generated method stub
-		System.out.println("Found solution!");
-		
-	}
 
 }
