@@ -71,14 +71,14 @@ public class OCRKNN {
 		return (int) res.get(0, 0)[0];
 	}
 	
-	public static int predict(Mat m) {	
+	public static int predict(Mat m, int k) {	
 		//Mat a = Imgcodecs.imread(fileName,0);
 		//Imgproc.threshold(a, a, 200, 255, Imgproc.THRESH_BINARY);
 		Imgproc.resize(m, m, new Size(20,30));
 		m.convertTo(m, CvType.CV_32F);
 		m = m.clone().reshape(1,1);
 		Mat res = new Mat();
-		knn.findNearest(m, 9, res);
+		knn.findNearest(m, k, res);
 		//System.out.println("Predicted " + res.dump());
 		return (int) res.get(0, 0)[0];
 	}

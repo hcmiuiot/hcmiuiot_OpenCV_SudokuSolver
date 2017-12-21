@@ -129,18 +129,36 @@ public class ImageProcessing {
 				//ImgShow.imshow("00", subDigit(res, 4, 6));
 				Mat textMask = new Mat(size, size, CvType.CV_8U);
 				
+				int matrix[][] = new int[9][9];
+				
+				double h = res.size().height /9f;
+				double w = res.size().width  /9f;
+				
 				for (int row=0; row<9; row++) {
 					for (int col=0; col<9; col++) {
-						int predictNum = predictCell(subDigit(res, row, col));
-						double h = res.size().height /9f;
-						double w = res.size().width  /9f;
-						Imgproc.putText(resColor, ""+predictNum, new Point(col*w, row*h+h), Core.FONT_HERSHEY_COMPLEX, 1.2f, new Scalar(255,0,0));
+						int predictNum = predictCell(subDigit(res, row, col), row, col);
+						
+						matrix[row][col] = predictNum;
+						//Imgproc.putText(resColor, ""+predictNum, new Point(col*w, row*h+h), Core.FONT_HERSHEY_COMPLEX, 1.2f, new Scalar(255,0,0));
+					}
+				}
+				
+				SudokuAlgorithm solver = new SudokuAlgorithm(matrix);
+				solver.solve();
+				int solvedResult[][] = solver.getFirstSolution();
+				for (int row=0; row<9; row++) {
+					for (int col=0; col<9; col++) {
+						if (solvedResult[row][col] != matrix[row][col]) {
+							Imgproc.putText(resColor, ""+solvedResult[row][col], new Point(col*w+20, row*h+h-20), Core.FONT_HERSHEY_COMPLEX, 1.2f, new Scalar(255,0,0));
+						}
+						
 					}
 				}
 				
 				ImgShow.imshow("data", resColor);
+				//predictCell(subDigit(res, 8, 8));
 				
-				System.out.println("Predict at 0,0: " + predictCell(subDigit(res, 4, 6)));
+				//System.out.println("Predict at 4,6: " + predictCell(subDigit(res, 4, 6)));
 				//ImgShow.imshow("text", textMask);
 			}
 
@@ -149,7 +167,7 @@ public class ImageProcessing {
 		}
 	}
 	
-	private static int predictCell(Mat cellImg) {
+	private static int predictCell(Mat cellImg, int row, int col) {
 		Mat thresholded = new Mat();
 		Imgproc.adaptiveThreshold(cellImg, thresholded, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY_INV, 15, 2);
 		Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2));
@@ -164,22 +182,32 @@ public class ImageProcessing {
 		
 		for (int i=0; i<contours.size(); i++) {
 			//Imgproc.drawContours(textMask, contours, i, new Scalar(255,0,0));
-			Rect boundingRec = Imgproc.boundingRect(contours.get(0));
+			Rect boundingRec = Imgproc.boundingRect(contours.get(i));
+			double ratio = 1.0f*boundingRec.width/boundingRec.height;
 			if (boundingRec.height >= 0.3f*cellImg.size().height &&
-					boundingRec.width >= 0.05f*cellImg.size().width) {
+					boundingRec.width >= 0.05f*cellImg.size().width &&
+					boundingRec.height <= 0.8f*cellImg.size().height &&
+					boundingRec.width <= 0.8f*cellImg.size().width &&
+					((ratio >= 0.5f && ratio <= 0.9f) || (ratio >= 0.2f && ratio <= 0.5f))
+					) {
+				
 				Mat submat = thresholded.submat(boundingRec);
-				int predictNumber = OCRKNN.predict(submat);
-				System.out.println("Predicted: "+ predictNumber);
+				int predictNumber = OCRKNN.predict(submat, 11);
+				
+				System.out.println(""+row +"-" + col+":" +ratio);
+				return predictNumber;
+				//System.out.println("Predicted: "+ predictNumber);
 				
 				//Imgproc.putText(textMask, "" + predictNumber, new Point(5,5), 0, 1f, new Scalar(0,0,255));
-				ImgShow.imshow("NUMBER", thresholded.submat(boundingRec));
+				//ImgShow.imshow("NUMBER "+i, thresholded.submat(boundingRec));
+				//System.out.println("Ratio "+i+"=" + 1.0f*boundingRec.width/boundingRec.height);
 				
 				//ImgShow.imshow("text", textMask);
-				return predictNumber;
+				//return predictNumber;
 			}
 		}
 		
-		ImgShow.imshow("predict", thresholded);
+		//ImgShow.imshow("predict", thresholded);
 		return 0;
 	}
 	
