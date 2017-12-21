@@ -26,7 +26,12 @@ public class ImageProcessing {
 	public void process() {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		
-		OCRKNN.train();
+		int matrixx[][] = new int[9][9];
+		
+		if (OCRKNN.train() == false) {
+			System.out.println("Training KNN failed, exit now!");
+			return;
+		}
 		
 		VideoCapture vc = new VideoCapture(0);
 		Mat frame = new Mat();
@@ -35,7 +40,7 @@ public class ImageProcessing {
 		Mat thresholded = new Mat();
 		Mat grayImg = new Mat();
 		
-		while (true) {
+		while (vc.isOpened()) {
 			vc.read(frame);
 			Imgproc.cvtColor(frame, grayImg, Imgproc.COLOR_BGR2GRAY);
 			//ImgShow.imshow("src", frame);
@@ -81,89 +86,82 @@ public class ImageProcessing {
 			Mat hierarchy = new Mat();
 			
 			Imgproc.findContours(thresholded, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+				
 			
-			MatOfPoint2f approx = new MatOfPoint2f();
+			if (contours.size()==1) {
 			
-			if (contours.size()==1)
+				MatOfPoint2f approx = new MatOfPoint2f();
+				Imgproc.approxPolyDP(MatOfPoint_to_MatOfPoint2f(contours.get(0)), approx, Imgproc.arcLength(MatOfPoint_to_MatOfPoint2f(contours.get(0)), true)*0.02f, true);
 			
-			Imgproc.approxPolyDP(MatOfPoint_to_MatOfPoint2f(contours.get(0)), approx, Imgproc.arcLength(MatOfPoint_to_MatOfPoint2f(contours.get(0)), true)*0.02f, true);
-			if (approx.size().height == 4) {
-				contours.add(MatOfPoint2f_to_MatOfPoint(approx));
-				Imgproc.drawContours(frame, contours, contours.size()-1, new Scalar(0,0,255));
+				if (approx.size().height == 4) {
 				
-				List<Point> srcPoints = new ArrayList<>();
-				Converters.Mat_to_vector_Point2f(approx, srcPoints);
+					contours.add(MatOfPoint2f_to_MatOfPoint(approx));
+					Imgproc.drawContours(frame, contours, contours.size()-1, new Scalar(0,0,255));
 				
-//				for (Point p : srcPoints) {
-//					Imgproc.putText(frame, p.toString(), p, 0, 1f, new Scalar(255,0,0));
-//					//System.out.println(srcPoints);
-//				}
+					List<Point> srcPoints = new ArrayList<>();
+					Converters.Mat_to_vector_Point2f(approx, srcPoints);
 				
-				List<Point> dstPoints = new ArrayList<>();
+					List<Point> dstPoints = new ArrayList<>();
 				
-				int size = 600;
+					int size = 600;
 
-				if (srcPoints.get(2).x <= srcPoints.get(0).x &&
-						srcPoints.get(2).y >= srcPoints.get(0).y) {
-					dstPoints.add(new Point(size,0));
-					dstPoints.add(new Point(0,0));
-					dstPoints.add(new Point(0,size));
-					dstPoints.add(new Point(size,size));
-				}
-				else {
-					dstPoints.add(new Point(0,0));
-					dstPoints.add(new Point(0,size));
-					dstPoints.add(new Point(size,size));
-					dstPoints.add(new Point(size,0));
-				}
-				
-				Mat perspectiveForm = Imgproc.getPerspectiveTransform(Converters.vector_Point2f_to_Mat(srcPoints), Converters.vector_Point2f_to_Mat(dstPoints));
-				
-				Mat res = new Mat();
-				Mat resColor = new Mat();
-				
-				Imgproc.warpPerspective(grayImg, res, perspectiveForm, new Size(size,size));
-				Imgproc.warpPerspective(frame, resColor, perspectiveForm, new Size(size,size));
-				//ImgShow.imshow("res", res);
-			
-				//ImgShow.imshow("00", subDigit(res, 4, 6));
-				Mat textMask = new Mat(size, size, CvType.CV_8U);
-				
-				int matrix[][] = new int[9][9];
-				
-				double h = res.size().height /9f;
-				double w = res.size().width  /9f;
-				
-				for (int row=0; row<9; row++) {
-					for (int col=0; col<9; col++) {
-						int predictNum = predictCell(subDigit(res, row, col), row, col);
-						
-						matrix[row][col] = predictNum;
-						//Imgproc.putText(resColor, ""+predictNum, new Point(col*w, row*h+h), Core.FONT_HERSHEY_COMPLEX, 1.2f, new Scalar(255,0,0));
+					if (srcPoints.get(2).x <= srcPoints.get(0).x &&
+							srcPoints.get(2).y >= srcPoints.get(0).y) {
+						dstPoints.add(new Point(size,0));
+						dstPoints.add(new Point(0,0));
+						dstPoints.add(new Point(0,size));
+						dstPoints.add(new Point(size,size));
 					}
-				}
+					else {
+						dstPoints.add(new Point(0,0));
+						dstPoints.add(new Point(0,size));
+						dstPoints.add(new Point(size,size));
+						dstPoints.add(new Point(size,0));
+					}
 				
-				SudokuAlgorithm solver = new SudokuAlgorithm(matrix);
-				solver.solve();
-				int solvedResult[][] = solver.getFirstSolution();
-				for (int row=0; row<9; row++) {
-					for (int col=0; col<9; col++) {
-						if (solvedResult[row][col] != matrix[row][col]) {
-							Imgproc.putText(resColor, ""+solvedResult[row][col], new Point(col*w+20, row*h+h-20), Core.FONT_HERSHEY_COMPLEX, 1.2f, new Scalar(255,0,0));
+					Mat perspectiveForm = Imgproc.getPerspectiveTransform(Converters.vector_Point2f_to_Mat(srcPoints), Converters.vector_Point2f_to_Mat(dstPoints));
+				
+					Mat res = new Mat();
+					Mat resColor = new Mat();
+				
+					Imgproc.warpPerspective(grayImg, res, perspectiveForm, new Size(size,size));
+					Imgproc.warpPerspective(frame, resColor, perspectiveForm, new Size(size,size));
+					//ImgShow.imshow("res", res);
+				
+					double h = res.size().height /9f;
+					double w = res.size().width  /9f;
+				
+					for (int row=0; row<9; row++) {
+						for (int col=0; col<9; col++) {
+							int predictNum = predictCell(subDigit(res, row, col), row, col);
+						
+							matrixx[row][col] = predictNum;
+							//Imgproc.putText(resColor, ""+predictNum, new Point(col*w, row*h+h), Core.FONT_HERSHEY_COMPLEX, 1.2f, new Scalar(255,0,0));
 						}
-						
 					}
+				
+					SudokuAlgorithm solver = new SudokuAlgorithm(matrixx);
+					solver.printSolution(solver.getMatrix());
+//					//solver.setMatrix(matrix);
+					solver.solve();
+					int solvedResult[][] = solver.getFirstSolution();
+					if (solvedResult != null) {
+						for (int row=0; row<9; row++) {
+							for (int col=0; col<9; col++) {
+								if (solvedResult[row][col] != matrixx[row][col]) {
+									Imgproc.putText(resColor, ""+solvedResult[row][col], new Point(col*w+20, row*h+h-20), Core.FONT_HERSHEY_COMPLEX, 1.2f, new Scalar(255,0,0));
+								}
+							
+							}
+						}
+					}
+					
+					ImgShow.imshow("data", resColor);
+				
 				}
-				
-				ImgShow.imshow("data", resColor);
-				//predictCell(subDigit(res, 8, 8));
-				
-				//System.out.println("Predict at 4,6: " + predictCell(subDigit(res, 4, 6)));
-				//ImgShow.imshow("text", textMask);
 			}
 
-			ImgShow.imshow("contours", frame);
-				
+			ImgShow.imshow("contours", frame);			
 		}
 	}
 	
@@ -194,16 +192,8 @@ public class ImageProcessing {
 				Mat submat = thresholded.submat(boundingRec);
 				int predictNumber = OCRKNN.predict(submat, 11);
 				
-				System.out.println(""+row +"-" + col+":" +ratio);
+				//System.out.println(""+row +"-" + col+":" +ratio);
 				return predictNumber;
-				//System.out.println("Predicted: "+ predictNumber);
-				
-				//Imgproc.putText(textMask, "" + predictNumber, new Point(5,5), 0, 1f, new Scalar(0,0,255));
-				//ImgShow.imshow("NUMBER "+i, thresholded.submat(boundingRec));
-				//System.out.println("Ratio "+i+"=" + 1.0f*boundingRec.width/boundingRec.height);
-				
-				//ImgShow.imshow("text", textMask);
-				//return predictNumber;
 			}
 		}
 		
@@ -233,7 +223,6 @@ public class ImageProcessing {
 		return temp;
 	}
 	
-
 }
 
 

@@ -24,9 +24,9 @@ public class SudokuSolver {
 	
 	public static void main(String[] args) {
 		
-		SudokuAlgorithm solver = new SudokuAlgorithm(matrix2);
-		solver.solve();
-		solver.printFirstSolution();
+//		SudokuAlgorithm solver = new SudokuAlgorithm(matrix2);
+//		solver.solve();
+//		solver.printFirstSolution();
 		
 		ImageProcessing imgProc = new ImageProcessing();
 		imgProc.process();

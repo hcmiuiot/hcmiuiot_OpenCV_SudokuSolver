@@ -34,7 +34,7 @@ public class OCRKNN {
 		new OCRKNN();
 	}
 	
-	public static void train() {
+	public static boolean train() {
 		
 		Mat img = new Mat();
 		Mat label = new Mat(0,0, CvType.CV_32SC1);
@@ -44,7 +44,7 @@ public class OCRKNN {
 		for (int digit=0; digit<10; digit++) {
 			for (int element=1; element <= 35; element++) {
 				img = Imgcodecs.imread("data/digits2/"+digit+"/a (" +  element + ").jpg", 0);
-				System.out.println("data/digits2/"+digit+"/a (" +  element + ").jpg");
+				//System.out.println("data/digits2/"+digit+"/a (" +  element + ").jpg");
 				img.convertTo(img, CvType.CV_32F);
 				img = img.clone().reshape(1,1);
 				//System.out.println(img.dump());
@@ -56,7 +56,8 @@ public class OCRKNN {
 		knn.train(imgTrain, Ml.ROW_SAMPLE, label);
 		knn.save(trainedFile);
 		
-		System.out.println(knn.isTrained());	
+		System.out.println("Loaded KNN: "+ knn.isTrained());	
+		return knn.isTrained();
 	}
 	
 	public static int predict(String fileName) {	

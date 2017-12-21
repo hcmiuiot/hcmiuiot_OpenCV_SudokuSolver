@@ -11,7 +11,29 @@ public class SudokuAlgorithm {
 	private List<int[][]> solvedMatrix = new ArrayList<>();
 	
 	public SudokuAlgorithm(int[][] matrix) {
-		this.matrix = matrix.clone();
+		//this.matrix = matrix.clone();
+		for (int i=0; i<getSize(); i++) {
+    		for (int j=0; j<getSize(); j++) {
+    			this.matrix[i][j] = matrix[i][j];
+    		}
+    	}
+	}
+
+	public SudokuAlgorithm() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public void setMatrix(int[][] matrix) {
+		//this.matrix = matrix.clone();
+		for (int i=0; i<getSize(); i++) {
+    		for (int j=0; j<getSize(); j++) {
+    			this.matrix[i][j] = matrix[i][j];
+    		}
+    	}
+	}
+	
+	public int[][] getMatrix() {
+		return matrix;
 	}
 
 	public int  getSize() 		  {return _size;}
@@ -37,9 +59,10 @@ public class SudokuAlgorithm {
 	}
 	
 	public void solve(int x, int y) {
-		if (solved && solveAll == false)
+		if (solved == true && solveAll == false)
 			return;
 		
+		System.out.println("Solving " + x + "-"+y);
 	    if (y == getSize()) {
 	        if (x == getSize()-1) {
 	        	int temp[][] = new int[getSize()][getSize()];
@@ -73,11 +96,15 @@ public class SudokuAlgorithm {
 	}
 	
 	public void solve() {
+		solvedMatrix.clear();
+		solved = false;
 		solveAll = false;
 	    solve(0,0);
 	}
 	
 	public void solveAll() {
+		solvedMatrix.clear();
+		solved = false;
 		solveAll = true;
 		solve(0,0);
 	}
